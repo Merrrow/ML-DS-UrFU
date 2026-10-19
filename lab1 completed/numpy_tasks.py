@@ -1,4 +1,4 @@
-"""Решения задач на NumPy."""
+"""Решения задач по NumPy."""
 
 import numpy as np
 from grader_contracts.numpy_tasks import (
@@ -9,7 +9,7 @@ from grader_contracts.numpy_tasks import (
 
 
 def sum_prod(data: MatrixVectorBatchInput) -> np.ndarray:
-    """Compute the sum of each matrix multiplied by its matching vector."""
+    """Перемножает каждую матрицу с соответствующим вектором и складывает результаты."""
     matrices = np.asarray(data.matrices)
     vectors = np.asarray(data.vectors)
     if matrices.ndim != 3 or vectors.ndim not in (2, 3):
@@ -22,13 +22,13 @@ def sum_prod(data: MatrixVectorBatchInput) -> np.ndarray:
 
 
 def binarize(data: BinarizeInput) -> np.ndarray:
-    """Return a new integer matrix indicating values strictly above threshold."""
+    """Создаёт новую матрицу: значения выше порога заменяются на 1, остальные — на 0."""
     matrix, threshold = np.asarray(data.matrix), data.threshold
     return (matrix > threshold).astype(int)
 
 
 def unique_rows(data: MatrixInput) -> list[list[float]]:
-    """Return sorted unique values from every row."""
+    """Возвращает отсортированные уникальные значения для каждой строки матрицы."""
     matrix = np.asarray(data.matrix)
     if matrix.ndim != 2:
         raise ValueError("Expected a two-dimensional matrix")
@@ -36,7 +36,7 @@ def unique_rows(data: MatrixInput) -> list[list[float]]:
 
 
 def unique_columns(data: MatrixInput) -> list[list[float]]:
-    """Return sorted unique values from every column."""
+    """Возвращает отсортированные уникальные значения для каждого столбца матрицы."""
     matrix = np.asarray(data.matrix)
     if matrix.ndim != 2:
         raise ValueError("Expected a two-dimensional matrix")
@@ -44,7 +44,7 @@ def unique_columns(data: MatrixInput) -> list[list[float]]:
 
 
 def matrix_statistics(data: RandomMatrixInput) -> MatrixStatistics:
-    """Generate a normal random matrix and compute row/column statistics."""
+    """Создаёт нормально распределённую случайную матрицу и вычисляет статистики строк и столбцов."""
     rows, columns, mean, std, seed = data.rows, data.columns, data.mean, data.std, data.seed
     if rows <= 0 or columns <= 0:
         raise ValueError("Matrix dimensions must be positive")
@@ -62,33 +62,58 @@ def matrix_statistics(data: RandomMatrixInput) -> MatrixStatistics:
 
 
 def plot_matrix_statistics_histograms(statistics: MatrixStatistics):
-    """Plot value histograms for each row and column; return both figures.
+    """Строит гистограммы значений каждой строки и каждого столбца матрицы.
 
-    Matplotlib is imported lazily, so using the numerical tasks does not require
-    a graphical backend unless plotting is explicitly requested.
+    Возвращает две фигуры Matplotlib: одну для строк, другую для столбцов.
+    Matplotlib импортируется только при вызове функции, поэтому для остальных
+    задач с NumPy графическая библиотека не требуется.
     """
     import matplotlib.pyplot as plt
 
     matrix = np.asarray(statistics.matrix)
     if matrix.ndim != 2:
         raise ValueError("Expected a two-dimensional matrix in MatrixStatistics")
+    if matrix.shape[0] == 0 or matrix.shape[1] == 0:
+        raise ValueError("Matrix must not be empty")
 
-    row_fig, row_axes = plt.subplots(matrix.shape[0], 1, squeeze=False)
+    # Строим отдельную гистограмму для каждой строки.
+    row_fig, row_axes = plt.subplots(
+        nrows=matrix.shape[0],
+        ncols=1,
+        figsize=(8, 3 * matrix.shape[0]),
+        squeeze=False,
+    )
     for idx, row in enumerate(matrix):
-        row_axes[idx, 0].hist(row)
-        row_axes[idx, 0].set_title(f"Row {idx}")
+        ax = row_axes[idx, 0]
+        ax.hist(row, bins="auto", edgecolor="black")
+        ax.set_title(f"Строка {idx + 1}")
+        ax.set_xlabel("Значение")
+        ax.set_ylabel("Частота")
+        ax.grid(axis="y", alpha=0.3)
     row_fig.tight_layout()
 
-    column_fig, column_axes = plt.subplots(matrix.shape[1], 1, squeeze=False)
+    # Строим отдельную гистограмму для каждого столбца.
+    column_fig, column_axes = plt.subplots(
+        nrows=matrix.shape[1],
+        ncols=1,
+        figsize=(8, 3 * matrix.shape[1]),
+        squeeze=False,
+    )
     for idx in range(matrix.shape[1]):
-        column_axes[idx, 0].hist(matrix[:, idx])
-        column_axes[idx, 0].set_title(f"Column {idx}")
+        ax = column_axes[idx, 0]
+        ax.hist(matrix[:, idx], bins="auto", edgecolor="black")
+        ax.set_title(f"Столбец {idx + 1}")
+        ax.set_xlabel("Значение")
+        ax.set_ylabel("Частота")
+        ax.grid(axis="y", alpha=0.3)
     column_fig.tight_layout()
+
+    plt.show()
     return row_fig, column_fig
 
 
 def chess(data: ChessInput) -> np.ndarray:
-    """Create a checkerboard matrix with the top-left element equal to first."""
+    """Создаёт шахматную матрицу с заданным значением в левом верхнем углу."""
     rows, columns, first, second = data.rows, data.columns, data.first, data.second
     if rows < 0 or columns < 0:
         raise ValueError("Matrix dimensions cannot be negative")
@@ -97,7 +122,7 @@ def chess(data: ChessInput) -> np.ndarray:
 
 
 def draw_rectangle(data: RectangleInput) -> np.ndarray:
-    """Create an RGB image with a centered, filled rectangle."""
+    """Создаёт RGB-изображение с закрашенным прямоугольником в центре."""
     width, height = data.width, data.height
     image_height, image_width = data.image_height, data.image_width
     shape_color, background_color = data.shape_color, data.background_color
@@ -111,13 +136,13 @@ def draw_rectangle(data: RectangleInput) -> np.ndarray:
     top = (image_height - height) // 2
     left = (image_width - width) // 2
     bottom, right = top + height, left + width
-    # Slicing naturally clips a rectangle that extends beyond the image.
+    # Срезы автоматически обрезают части прямоугольника, выходящие за границы изображения.
     image[max(0, top) : min(image_height, bottom), max(0, left) : min(image_width, right)] = shape_color
     return image
 
 
 def draw_ellipse(data: EllipseInput) -> np.ndarray:
-    """Create an RGB image with a centered, filled ellipse."""
+    """Создаёт RGB-изображение с закрашенным эллипсом в центре."""
     semi_axis_x, semi_axis_y = data.semi_axis_x, data.semi_axis_y
     image_height, image_width = data.image_height, data.image_width
     shape_color, background_color = data.shape_color, data.background_color
@@ -139,7 +164,7 @@ def draw_ellipse(data: EllipseInput) -> np.ndarray:
 
 
 def analyze_time_series(data: TimeSeriesInput) -> TimeSeriesStatistics:
-    """Compute descriptive statistics, strict extrema, and moving averages."""
+    """Вычисляет статистики временного ряда, локальные экстремумы и скользящее среднее."""
     values = np.asarray(data.values, dtype=float)
     window = data.window
     if values.ndim != 1:
@@ -163,7 +188,7 @@ def analyze_time_series(data: TimeSeriesInput) -> TimeSeriesStatistics:
 
 
 def one_hot(data: OneHotInput) -> np.ndarray:
-    """Convert non-negative integer labels to a one-hot matrix."""
+    """Преобразует неотрицательные целочисленные метки классов в one-hot матрицу."""
     labels = np.asarray(data.labels)
     class_count = data.class_count
     if labels.ndim != 1:

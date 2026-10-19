@@ -1,27 +1,27 @@
-"""Решения задач на базовый Python."""
+"""Решения задач по основам Python."""
 
 from grader_contracts.python_basics import PositiveIntegerInput, TextInput, VectorPairInput
 
 
 def count_vowels(data: TextInput) -> int:
-    """Return the number of Latin vowels in a string, ignoring case."""
+    """Считает латинские гласные в строке без учёта регистра."""
     vowels = set("aeiou")
     return sum(char.lower() in vowels for char in data.value)
 
 
 def has_unique_characters(data: TextInput) -> bool:
-    """Return whether every character appears at most once."""
+    """Проверяет, встречается ли каждый символ в строке не более одного раза."""
     text = data.value
     return len(text) == len(set(text))
 
 
 def count_one_bits(data: PositiveIntegerInput) -> int:
-    """Count the set bits in the binary representation of a positive integer."""
+    """Считает единичные биты в двоичной записи положительного числа."""
     return data.value.bit_count()
 
 
 def multiplicative_persistence(data: PositiveIntegerInput) -> int:
-    """Count digit-product steps required to reach a single digit."""
+    """Считает количество перемножений цифр до получения однозначного числа."""
     number = data.value
     steps = 0
     while number >= 10:
@@ -34,7 +34,7 @@ def multiplicative_persistence(data: PositiveIntegerInput) -> int:
 
 
 def mse(data: VectorPairInput) -> float:
-    """Return the mean squared error between two equal-length vectors."""
+    """Вычисляет среднюю квадратичную ошибку двух векторов одинаковой длины."""
     predicted, expected = data.predicted, data.expected
     if len(predicted) != len(expected):
         raise ValueError("Vectors must have the same length")
@@ -44,7 +44,7 @@ def mse(data: VectorPairInput) -> float:
 
 
 def prime_factorization(data: PositiveIntegerInput) -> str:
-    """Format a positive integer's prime factorization in ascending order."""
+    """Возвращает разложение числа на простые множители в порядке возрастания."""
     number = data.value
     factors: list[str] = []
     divisor = 2
@@ -58,12 +58,12 @@ def prime_factorization(data: PositiveIntegerInput) -> str:
         divisor = 3 if divisor == 2 else divisor + 2
     if number > 1:
         factors.append(f"({number})")
-    # 1 has no prime factors, so its factorization is the empty product.
+    # У числа 1 нет простых множителей, поэтому результат — пустое произведение.
     return "".join(factors)
 
 
 def pyramid(data: PositiveIntegerInput) -> int | str:
-    """Return k if n = 1² + ... + k², or the failure message otherwise."""
+    """Возвращает k, если n = 1² + ... + k²; в противном случае сообщает об ошибке."""
     cube_count = data.value
     total = 0
     level = 0
@@ -74,7 +74,7 @@ def pyramid(data: PositiveIntegerInput) -> int | str:
 
 
 def is_balanced_number(data: PositiveIntegerInput) -> bool:
-    """Compare digit sums on both sides, excluding the middle digit(s)."""
+    """Сравнивает суммы цифр по обе стороны середины числа, не считая середину."""
     digits = str(data.value)
     middle = len(digits) // 2
     if len(digits) % 2:

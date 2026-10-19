@@ -1,4 +1,4 @@
-"""Tests for all tasks in laboratory 1. Run with `python -m pytest -q`."""
+"""Тесты для всех задач лабораторной № 1. Запуск: python -m pytest -q."""
 
 import numpy as np
 import pytest
@@ -14,7 +14,8 @@ from python_basics import (
 )
 from numpy_tasks import (
     analyze_time_series, binarize, chess, draw_ellipse, draw_rectangle,
-    matrix_statistics, one_hot, sum_prod, unique_columns, unique_rows,
+    matrix_statistics, one_hot, plot_matrix_statistics_histograms,
+    sum_prod, unique_columns, unique_rows,
 )
 
 
@@ -108,3 +109,25 @@ def test_draw_shapes_and_time_series():
     assert one_hot(OneHotInput([1, 0], 4)).shape == (2, 4)
     np.testing.assert_array_equal(one_hot(OneHotInput([0, 0])), [[1], [1]])
     assert one_hot(OneHotInput([])).shape == (0, 0)
+
+
+def test_matrix_statistics_histograms():
+    """Проверяет построение гистограмм для каждой строки и каждого столбца."""
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use("Agg", force=True)
+    import matplotlib.pyplot as plt
+
+    stats = matrix_statistics(RandomMatrixInput(3, 4, mean=2.0, std=0.5, seed=7))
+    row_fig, column_fig = plot_matrix_statistics_histograms(stats)
+
+    try:
+        # Для каждой строки и каждого столбца должна быть создана своя ось.
+        assert len(row_fig.axes) == 3
+        assert len(column_fig.axes) == 4
+
+        # Проверяем, что на всех осях действительно построены столбцы гистограммы.
+        assert all(len(ax.patches) > 0 for ax in row_fig.axes)
+        assert all(len(ax.patches) > 0 for ax in column_fig.axes)
+    finally:
+        plt.close(row_fig)
+        plt.close(column_fig)
